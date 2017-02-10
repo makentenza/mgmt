@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/purpleidea/mgmt/event"
 	"github.com/purpleidea/mgmt/util"
 
 	systemd "github.com/coreos/go-systemd/dbus" // change namespace
@@ -79,7 +78,7 @@ func (obj *SvcRes) Init() error {
 }
 
 // Watch is the primary listener for this resource and it outputs events.
-func (obj *SvcRes) Watch(processChan chan *event.Event) error {
+func (obj *SvcRes) Watch() error {
 	// obj.Name: svc name
 	if !systemdUtil.IsRunningSystemd() {
 		return fmt.Errorf("Systemd is not running.")
@@ -104,7 +103,7 @@ func (obj *SvcRes) Watch(processChan chan *event.Event) error {
 	bus.Signal(buschan)
 
 	// notify engine that we're running
-	if err := obj.Running(processChan); err != nil {
+	if err := obj.Running(); err != nil {
 		return err // bubble up a NACK...
 	}
 
@@ -205,7 +204,7 @@ func (obj *SvcRes) Watch(processChan chan *event.Event) error {
 
 		if send {
 			send = false
-			obj.Event(processChan)
+			obj.Event()
 		}
 	}
 }

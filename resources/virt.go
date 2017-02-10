@@ -29,8 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/purpleidea/mgmt/event"
-
 	multierr "github.com/hashicorp/go-multierror"
 	"github.com/libvirt/libvirt-go"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
@@ -262,7 +260,7 @@ func (obj *VirtRes) connect() (conn *libvirt.Connect, err error) {
 }
 
 // Watch is the primary listener for this resource and it outputs events.
-func (obj *VirtRes) Watch(processChan chan *event.Event) error {
+func (obj *VirtRes) Watch() error {
 	domChan := make(chan libvirt.DomainEventType) // TODO: do we need to buffer this?
 	gaChan := make(chan *libvirt.DomainEventAgentLifecycle)
 	errorChan := make(chan error)
@@ -320,7 +318,7 @@ func (obj *VirtRes) Watch(processChan chan *event.Event) error {
 	defer obj.conn.DomainEventDeregister(gaCallbackID)
 
 	// notify engine that we're running
-	if err := obj.Running(processChan); err != nil {
+	if err := obj.Running(); err != nil {
 		return err // bubble up a NACK...
 	}
 
@@ -412,7 +410,7 @@ func (obj *VirtRes) Watch(processChan chan *event.Event) error {
 
 		if send {
 			send = false
-			obj.Event(processChan)
+			obj.Event()
 		}
 	}
 }

@@ -323,7 +323,7 @@ sending out erroneous `Event` messages to keep things alive until it finishes.
 #### Example
 ```golang
 // Watch is the listener and main loop for this resource.
-func (obj *FooRes) Watch(processChan chan *event.Event) error {
+func (obj *FooRes) Watch() error {
 	// setup the Foo resource
 	var err error
 	if err, obj.foo = OpenFoo(); err != nil {
@@ -332,7 +332,7 @@ func (obj *FooRes) Watch(processChan chan *event.Event) error {
 	defer obj.whatever.CloseFoo() // shutdown our
 
 	// notify engine that we're running
-	if err := obj.Running(processChan); err != nil {
+	if err := obj.Running(); err != nil {
 		return err // bubble up a NACK...
 	}
 
@@ -361,7 +361,7 @@ func (obj *FooRes) Watch(processChan chan *event.Event) error {
 		// do all our event sending all together to avoid duplicate msgs
 		if send {
 			send = false
-			obj.Event(processChan)
+			obj.Event() // send the event!
 		}
 	}
 }
